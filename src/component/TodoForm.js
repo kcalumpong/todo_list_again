@@ -4,7 +4,7 @@ class TodoForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      todos: [],
+      todos: ['kristina'],
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -46,7 +46,7 @@ class TodoForm extends React.Component {
               value={this.state.todos}
               onChange={this.handleChange}
             ></input>
-            <button onClick={this.handleSubmit} className="add-button">
+            <button className="add-button">
               Add +
             </button>
           </form>
