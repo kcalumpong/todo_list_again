@@ -1,5 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { faker } from "@faker-js/faker";
+
+let token;
 
 class Todos extends React.Component {
   constructor(props) {
@@ -7,10 +11,58 @@ class Todos extends React.Component {
     this.state = {
       todos: [],
       todo: "",
+      apiTodos: [],
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.createTodo = this.createTodo.bind(this);
+  }
+
+  componentDidMount() {
+    this.login();
+  }
+
+  login() {
+    let config = {
+      method: "post",
+      url: "https://api-nodejs-todolist.herokuapp.com/user/login",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: {
+        email: "xtina@gmail.com",
+        password: "pass1234",
+      },
+    };
+    axios(config)
+      .then((res) => {
+        token = res.data.token;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  createTodo() {
+    let config = {
+      method: "post",
+      url: "https://api-nodejs-todolist.herokuapp.com/task",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      data: { description: `Feed ${faker.animal.type()}` },
+    };
+    axios(config)
+      .then((res) => {
+        this.setState((prevState) => ({
+          apiTodos: [...prevState.apiTodos, res.data.data.description],
+        }));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   handleChange(event) {
@@ -43,9 +95,28 @@ class Todos extends React.Component {
           <button onClick={this.handleSubmit} className="add-button">
             Add +
           </button>
+          <button onClick={this.createTodo} className="api-add-button">
+            Add with Api +
+          </button>
 
           {this.state.todos.map((elem) => {
-            return <p><Link key={elem} to={`/todo/${elem}`} state={{props: elem}}>TODO: {elem}</Link></p>
+            return (
+              <p>
+                <Link key={elem} to={`/todo/${elem}`} state={{ props: elem }}>
+                  TODO: {elem}
+                </Link>
+              </p>
+            );
+          })}
+
+          {this.state.apiTodos.map((elem) => {
+            return (
+              <p>
+                <Link key={elem} to={`/todo/${elem}`} state={{ props: elem }}>
+                  API TODO: {elem}
+                </Link>
+              </p>
+            );
           })}
         </div>
       </>
